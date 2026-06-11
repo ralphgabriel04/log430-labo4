@@ -1,0 +1,8 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,/orders/reports/highest-spenders,CatchResponseError('Erreur : 500 - Aucun JSON dans la réponse. Message : <!doctype html>\n<html lang=en>\n<title>500 Internal Server Error</title>\n<h1>Internal Server Error</h1>\n<p>The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.</p>\n'),594,2026-06-10T22:12:01Z,2026-06-10T22:12:55Z
+POST,/orders,CatchResponseError('Erreur : 500 - (mysql.connector.errors.OperationalError) 1040 (08004): Too many connections\n(Background on this error at: https://sqlalche.me/e/20/e3q8)'),348,2026-06-10T22:12:01Z,2026-06-10T22:12:55Z
+POST,/orders,"RetriesExceeded('http://store_manager:5000/orders', 0, original=timed out)",110,2026-06-10T22:11:57Z,2026-06-10T22:12:55Z
+POST,/orders,CatchResponseError('Erreur : 500 - (mysql.connector.errors.DatabaseError) 1040 (HY000): Too many connections\n(Background on this error at: https://sqlalche.me/e/20/4xp6)'),220,2026-06-10T22:12:06Z,2026-06-10T22:12:55Z
+POST,/orders,Exception('Aucune réponse (erreur ou timeout)'),110,2026-06-10T22:11:57Z,2026-06-10T22:12:55Z
+GET,/orders/reports/best-sellers,CatchResponseError('Erreur : 500 - Aucun JSON dans la réponse. Message : <!doctype html>\n<html lang=en>\n<title>500 Internal Server Error</title>\n<h1>Internal Server Error</h1>\n<p>The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.</p>\n'),562,2026-06-10T22:12:01Z,2026-06-10T22:12:55Z
+POST,/orders,CatchResponseError('Erreur : 500 - Too many connections'),5,2026-06-10T22:12:29Z,2026-06-10T22:12:34Z

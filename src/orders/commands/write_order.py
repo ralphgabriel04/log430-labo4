@@ -24,13 +24,19 @@ def add_order(user_id: int, items: list):
 
     try:
         start_time = time.time()
-        # TODO: optimiser
+        # Labo 4 - Activité 6 : élimination du problème N+1.
+        # On récupère TOUS les produits en UNE seule requête (IN) au lieu d'une
+        # requête par article dans une boucle.
         product_prices = {}
-        for product_id in product_ids:
-            products = session.query(Product).filter(Product.id == product_id).all()
-            if not len(products):
+        unique_product_ids = list(set(product_ids))
+        products = session.query(Product).filter(Product.id.in_(unique_product_ids)).all()
+        for product in products:
+            product_prices[product.id] = product.price
+
+        # Validation : tous les product_id demandés doivent exister
+        for product_id in unique_product_ids:
+            if product_id not in product_prices:
                 raise ValueError(f"Product ID {product_id} not found in database.")
-            product_prices[product_id] = products[0].price
         total_amount = 0
         order_items = []
         

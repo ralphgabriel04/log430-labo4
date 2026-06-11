@@ -7,12 +7,36 @@ import threading
 from graphene import Schema
 from stocks.schemas.query import Query
 from flask import Flask, request, jsonify
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from orders.controllers.order_controller import create_order, remove_order, get_order, get_report_highest_spending_users, get_report_best_selling_products
 from orders.controllers.user_controller import create_user, remove_user, get_user
 from stocks.controllers.product_controller import create_product, remove_product, get_product
 from stocks.controllers.stock_controller import get_stock, set_stock, get_stock_overview
- 
+
 app = Flask(__name__)
+
+# Labo 4 - Activité 3 : Counters Prometheus pour les 3 endpoints observés
+counter_orders = Counter('orders', 'Total calls to /orders')
+counter_highest_spenders = Counter('highest_spenders', 'Total calls to /orders/reports/highest-spenders')
+counter_best_sellers = Counter('best_sellers', 'Total calls to /orders/reports/best-sellers')
+
+# Labo 4 - Activité 7 : pré-génération et rafraîchissement du cache des rapports.
+# 2s après le démarrage on génère les 2 rapports dans Redis (skip_cache=True),
+# puis on répète toutes les 60s pour garder le cache à jour. L'ancien rapport
+# reste servi tant que le nouveau n'est pas prêt (évite le cache stampede).
+def generate_reports_and_cache():
+    # daemon=True : ces timers ne doivent pas empêcher le processus de se terminer
+    # (sinon pytest reste bloqué à la fin des tests à cause des threads récurrents).
+    for fn in (get_report_highest_spending_users, get_report_best_selling_products):
+        t = threading.Timer(2.0, fn, args=(True,))
+        t.daemon = True
+        t.start()
+    t = threading.Timer(60.0, generate_reports_and_cache)
+    t.daemon = True
+    t.start()
+
+# Start the first execution
+generate_reports_and_cache()
 
 @app.get('/health-check')
 def health():
@@ -23,6 +47,7 @@ def health():
 @app.post('/orders')
 def post_orders():
     """Create a new order based on information on request body"""
+    counter_orders.inc()
     return create_order(request)
 
 @app.delete('/orders/<int:order_id>')
@@ -79,12 +104,14 @@ def get_stocks(product_id):
 @app.get('/orders/reports/highest-spenders')
 def get_orders_highest_spending_users():
     """Get list of highest speding users, ordered by total expenditure"""
+    counter_highest_spenders.inc()
     rows = get_report_highest_spending_users()
     return jsonify(rows)
 
 @app.get('/orders/reports/best-sellers')
 def get_orders_report_best_selling_products():
     """Get list of best selling products, ordered by number of orders"""
+    counter_best_sellers.inc()
     rows = get_report_best_selling_products()
     return jsonify(rows)
 
@@ -105,7 +132,11 @@ def graphql_supplier():
         'errors': [str(e) for e in result.errors] if result.errors else None
     })
 
-# TODO: endpoint /metrics Prometheus
+# Labo 4 - Activité 2 : endpoint /metrics pour Prometheus
+@app.route("/metrics")
+def metrics():
+    """Expose les métriques au format Prometheus"""
+    return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 # Start Flask app
 if __name__ == '__main__':

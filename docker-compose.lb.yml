@@ -1,0 +1,37 @@
+# LOCAL-ONLY override for Activity 8 (load balancing, scenario_82):
+# Nginx + 2 replicas of store_manager, all coexisting with log430-labo5
+# by remapping host ports. Internal traffic goes locust -> nginx:80 -> store_manager:5000.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.lb.yml up -d
+services:
+  store_manager:
+    ports: !override []          # no host port: 2 replicas reached via nginx
+    deploy:
+      replicas: 2
+
+  locust:
+    ports: !override
+      - "8189:8089"
+
+  prometheus:
+    ports: !override
+      - "9190:9090"
+
+  mysql:
+    ports: !override
+      - "3406:3306"
+
+  redis:
+    ports: !override
+      - "6479:6379"
+
+  nginx:
+    image: nginx:latest
+    container_name: labo4-nginx
+    ports:
+      - "8888:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - store_manager
+    networks:
+      - labo04-network

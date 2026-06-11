@@ -1,0 +1,21 @@
+# LOCAL-ONLY override so Labo4 can run at the same time as log430-labo5
+# (which publishes the same host ports). NOT part of the deliverable.
+# Internal container-to-container traffic (locust -> store_manager:5000,
+# prometheus -> store_manager:5000) is unaffected; only HOST ports change.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.coexist.yml up -d
+services:
+  store_manager:
+    ports: !override
+      - "5050:5000"
+  locust:
+    ports: !override
+      - "8189:8089"
+  prometheus:
+    ports: !override
+      - "9190:9090"
+  mysql:
+    ports: !override
+      - "3406:3306"
+  redis:
+    ports: !override
+      - "6479:6379"

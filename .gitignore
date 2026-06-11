@@ -1,3 +1,14 @@
+# Local tooling artifacts (not part of the project)
+.cto-toolkit/
+.code-review-graph/
+.remember/
+.qodo/
+
+# Local-only docker overrides (coexistence avec d'autres labos)
+# (gardés volontairement pour reproductibilité, décommentez pour exclure)
+# docker-compose.coexist.yml
+# docker-compose.lb.yml
+
 # Generated mock data
 generators/redis_mock_data
 db-init/00_post_init.sql
